@@ -6,6 +6,7 @@ DisplayManager::DisplayManager(MachineState* mstate){
   this->mstate = mstate; 
   this->lcd.init();
   this->lcd.backlight();
+  this->timep = millis();
   status lastCase = INITIALIZING;
 }
 
@@ -24,7 +25,11 @@ void DisplayManager::tick(){
   switch(machinestate){
     case(INITIALIZING):
       lcd.setCursor(0, 0);
-      lcd.print("Initialization...");
+      if(this->timep +1000 > millis()){
+        lcd.print("Initialization...");        
+      } else{
+        lcd.print("Ready!          ");
+      }
       break;
     case(READY):
       lcd.setCursor(0, 0);

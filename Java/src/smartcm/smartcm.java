@@ -193,7 +193,7 @@ public class smartcm extends JFrame {
     }
     
     public static void main(String[] args) throws Exception {
-    	SerialCommChannel channel = new SerialCommChannel("/dev/ttyACM0",9600);
+    	SerialCommChannel channel = new SerialCommChannel("/dev/ttyACM2",9600);
     	Thread.sleep(4000);
     	new smartcm(5, channel);
     }

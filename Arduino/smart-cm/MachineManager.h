@@ -11,6 +11,7 @@
 #include <avr/power.h>
 #include <LowPower.h>
 
+
 class MachineManager: public Task {
 private:
   volatile status machineState;

@@ -9,6 +9,7 @@ class DisplayManager: public Task {
   MachineState* mstate;
   LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27,20,4);
   status lastCase;
+  int timep;
 
 public:
   DisplayManager(MachineState* mstate);  

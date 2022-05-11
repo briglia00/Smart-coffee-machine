@@ -94,6 +94,9 @@ void MsgServiceClass::tick(){
       sendMsg(String(mstate->getNumberSelfTests()));
     } else if(s == "RECOVR"){
       this->mstate->setStatus(READY);
+      if(!mstate->isAnyProductAvailable()){
+        this->mstate->refillMachine(1,1,1);
+      }
     }
     delete msg;
   }

@@ -1,5 +1,8 @@
 #include "MachineManager.h"
 
+#define PIR_INT_PIR 2
+#define SONAR_DISTANCE 0.4
+
 MachineManager::MachineManager(MachineState* mstate, ButtonImpl* b_up, ButtonImpl* b_down, ButtonImpl* b_make, Pir* pir, Sonar* sonar){
   this->machineState = INITIALIZING;
   this->mstate = mstate;
@@ -9,7 +12,7 @@ MachineManager::MachineManager(MachineState* mstate, ButtonImpl* b_up, ButtonImp
   this->pir = pir;
   this->sonar = sonar;
   this->timeSinceLastEvent = millis();
-  t = 0;
+  this->t = 0;
 }
 
 void MachineManager::init(int period){
@@ -71,13 +74,14 @@ void MachineManager::tick(){
     case(DONE):
       this->t = t + 1;
       //Serial.println(this->sonar->getDistance());    
-      if((millis() > (this->timeSinceLastEvent + TOUT * 1000)) || this->sonar->getDistance() > 0.40){
+      if((millis() > (this->timeSinceLastEvent + TOUT * 1000)) || this->sonar->getDistance() > SONAR_DISTANCE){
         mstate->setStatus(READY);
         mstate->reduceCurrentItem();
         this->mstate->nextProduct();
       }
       break;
     case(MAINTENANCE):
+      t = 0;
       if(mstate->isAnyProductAvailable()){
         noInterrupts();
         this->mstate->setStatus(READY);
@@ -90,21 +94,21 @@ void MachineManager::tick(){
       t = 0;
       break;
     case(BROKEN):
+      t = 0;
       break;
   }
 }
 
 static void MachineManager::wakeUp(){
   sleep_disable();
-  detachInterrupt(digitalPinToInterrupt(2));
+  detachInterrupt(digitalPinToInterrupt(PIR_INT_PIR));
   
 }
 
 void MachineManager::goSleep(){
   mstate->setStatus(SLEEP);
-  int interrupt_pin = 2;
   
-  attachInterrupt(digitalPinToInterrupt(interrupt_pin), wakeUp, RISING);
+  attachInterrupt(digitalPinToInterrupt(PIR_INT_PIR), wakeUp, RISING);
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();

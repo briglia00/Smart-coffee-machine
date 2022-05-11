@@ -1,17 +1,22 @@
 #include "ServoManager.h"
 #include "MachineState.h"
 
+#define MOTOR_POS_MIN 545
+#define MOTOR_POS_MAX 2400
+#define MOTOR_DELTA 20
+#define TMIN 15
+#define TMAX 40
+
 ServoManager::ServoManager(MachineState* mstate, int pin, TempSensor* t){
   this->mstate = mstate;
   this->pin = pin;
-  this->pos = 545;
+  this->pos = MOTOR_POS_MIN;
   this->delta = 20;
   this->servo = new ServoTimer2();
   this->servo->attach(pin);
   this->servo->write(this->pos-1);
   this->temp = t;
   lastState = INITIALIZING;
-  
 
 }
 
@@ -28,15 +33,15 @@ void ServoManager::tick(){
   }
   switch(currentState){
     case(READY):
-      if(this->pos!=545){
-        this->pos = 545;
+      if(this->pos != MOTOR_POS_MIN){
+        this->pos = MOTOR_POS_MIN;
         this->servo->write(this->pos-1);
       }
       break;
     case(MAKING):
       this->servo->write(pos);
       this->pos = this->pos + this->delta;
-      if(pos >= 2370){
+      if(pos >= MOTOR_POS_MAX - MOTOR_DELTA){
         noInterrupts();
         this->mstate->setStatus(DONE);
         interrupts();
@@ -47,15 +52,15 @@ void ServoManager::tick(){
     case(TEST):
       this->servo->write(pos);
       this->pos = this->pos + this->delta;
-      if(pos >= 2370 && this->delta > 0){
+      if(pos >= MOTOR_POS_MAX - MOTOR_DELTA && this->delta > 0){
         this->delta = - this->delta;
       }
-      if(pos <= 565 && this->delta < 0){
+      if(pos <= MOTOR_POS_MIN + MOTOR_DELTA && this->delta < 0){
         noInterrupts();
         this->delta = -delta;
         this->mstate->madeCheck();
         float x = temp->TemperatureDetected();
-        if(x < 10 || x > 50){
+        if(x < TMAX || x > TMIN){
           this->mstate->setStatus(BROKEN);
         } else {
           this->mstate->setStatus(READY);
