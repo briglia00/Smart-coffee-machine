@@ -41,7 +41,7 @@ void setup() {
   ServoManager* servomanager = new ServoManager(mstate, SERVO_PIN, t);
   MsgServiceClass* msg = new MsgServiceClass(mstate);
   msg->init(60);
-  display->init(90);
+  display->init(100);
   mmanager->init(50);
   servomanager->init(90);
   sched.addTask(mmanager);
